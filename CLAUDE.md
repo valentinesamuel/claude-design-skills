@@ -47,6 +47,8 @@ which to run instead and stop, without doing partial work.
   knowledge/               stack.md, craft.md — organisational standards
   scripts/                 validate-manifest.mjs, token-diff.mjs
   templates/design/        artifact templates
+  agents/{role}.md         optional — installed only if selected at install time
+  commands/{expert}.md     optional — installed only if an industry pack was selected
   .artifacts/design/       project state (generated)
     manifest.md            the state machine
     project-context.md     business truth
@@ -57,6 +59,33 @@ which to run instead and stop, without doing partial work.
     features/{slug}/       everything feature-scoped
     archive/               completed features
 ```
+
+## Optional installs: roles and industries
+
+The six-specialist pipeline above always installs in full — it's one cohesive
+system, not something to install partially. On top of it, `scripts/install.sh`
+offers two independent, optional picks:
+
+- **Roles** — individual subagents (Task-tool agents, not skills) dropped into
+  `.claude/agents/`: `ui-designer`, `frontend-developer`, `react-specialist`,
+  `code-reviewer`, `qa-expert`, `accessibility-tester`, and others. Pick the
+  ones relevant to the work — e.g. `ui-designer` + `frontend-developer` for a
+  greenfield build, `code-reviewer` + `qa-expert` for a hardening pass.
+- **Industries** — vertical command packs (`/name` slash commands) dropped
+  into `.claude/commands/`. `health` is the only one today: 13 domain-expert
+  consultants (clinical, nursing, pharmacy, lab, HMO/claims, hospital ops,
+  compliance, revenue cycle, healthcare PM/UX/DevOps, data standards). These
+  are written project-agnostically — each one's first job is to locate the
+  current project's actual types, files, and roles before giving domain
+  advice, rather than assuming any specific codebase's structure. Source
+  files live under `industries/{name}/commands/` in this repo; adding a new
+  industry means adding a new directory there plus one array entry in
+  `scripts/install.sh`.
+
+Both are `curl`-time choices (interactive menu, or `--roles`/`--industries`
+flags for non-interactive installs) — they don't participate in the pipeline
+state machine and aren't re-selectable later without re-running the
+installer.
 
 ## The state machine
 
