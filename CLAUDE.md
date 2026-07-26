@@ -60,32 +60,8 @@ which to run instead and stop, without doing partial work.
     archive/               completed features
 ```
 
-## Optional installs: roles and industries
-
-The six-specialist pipeline above always installs in full — it's one cohesive
-system, not something to install partially. On top of it, `scripts/install.sh`
-offers two independent, optional picks:
-
-- **Roles** — individual subagents (Task-tool agents, not skills) dropped into
-  `.claude/agents/`: `ui-designer`, `frontend-developer`, `react-specialist`,
-  `code-reviewer`, `qa-expert`, `accessibility-tester`, and others. Pick the
-  ones relevant to the work — e.g. `ui-designer` + `frontend-developer` for a
-  greenfield build, `code-reviewer` + `qa-expert` for a hardening pass.
-- **Industries** — vertical command packs (`/name` slash commands) dropped
-  into `.claude/commands/`. `health` is the only one today: 13 domain-expert
-  consultants (clinical, nursing, pharmacy, lab, HMO/claims, hospital ops,
-  compliance, revenue cycle, healthcare PM/UX/DevOps, data standards). These
-  are written project-agnostically — each one's first job is to locate the
-  current project's actual types, files, and roles before giving domain
-  advice, rather than assuming any specific codebase's structure. Source
-  files live under `industries/{name}/commands/` in this repo; adding a new
-  industry means adding a new directory there plus one array entry in
-  `scripts/install.sh`.
-
-Both are `curl`-time choices (interactive menu, or `--roles`/`--industries`
-flags for non-interactive installs) — they don't participate in the pipeline
-state machine and aren't re-selectable later without re-running the
-installer.
+Roles and industries (see README.md) are `curl`-time-only choices — they
+don't participate in the pipeline state machine below.
 
 ## The state machine
 
@@ -121,52 +97,8 @@ tests and axe), and stage 6 re-runs every command rather than trusting the repor
 Absent evidence is treated as failed verification, because the pipeline cannot tell
 them apart. Details in `skills/_shared/verification.md`.
 
-## Design intent worth knowing
-
-**The prototype is the reviewable artifact.** Stage 1 produces a working static
-prototype, not just a specification. Without it, stages 2 and 3 review prose and
-stage 5 invents the design — which is exactly how generated-looking UI reaches
-production.
-
-**The art direction is the anti-generic mechanism.** Interfaces read as AI-made
-because they contain no evidence of a decision, not because they contain gradients.
-`art-direction.md` forces specific committed values, and stages 2 and 6 check
-conformance against them. A prohibition list alone only produces bland-safe work.
-
-**Verdicts derive from severity counts, not from taste.** One Critical blocks; a
-Major means approve-with-changes; neither means approve. A gate that never opens
-transmits no information.
-
-**Reviews are scoped after the first iteration.** A rejection sets
-`Review Scope: delta` and a Changed Surfaces list, so the next review covers what
-changed at full standard plus a regression pass — rather than re-reviewing everything
-every time, which is what makes gated pipelines get abandoned.
-
-**Coherence is a project-level artifact.** No gate looks across features, so
-`product-architecture.md` holds the navigation model, object model, URL patterns and
-controlled vocabulary, and every feature is checked against it. Ten individually
-approved features otherwise produce three words for the same object.
-
-**Settled decisions stay settled.** `decisions.md` and prior approvals cannot be
-grounds for rejection — only for a Reopen Request that you adjudicate. This is what
-makes the pipeline converge instead of re-arguing stage 1 forever.
-
-**Write scope is absolute, and read scope is universal.** Only `staff-ui-engineer`
-writes application code. The three interrogating roles — both reviewers and the
-architect in validate mode — write nothing but their own report. They do not fix the
-defects they find, however trivial, because the finding is the deliverable and a
-silent fix bypasses the gate that was supposed to catch it.
-
-**No skill assumes anything.** Every specialist verifies what it read back to you
-and asks about every gap before producing its deliverable, in structured rounds,
-with recommended options and a short description of each. Anything a specialist
-would otherwise have to guess becomes a question instead.
-
-Because a `/clear` destroys conversation, every answer is appended to
-`features/{slug}/clarifications.md`. That file is what stops stage 4 from re-asking
-what stage 1 already settled, and what lets a later stage tell a decision you made
-from one a specialist invented. A skill waiting on you sets
-`Status: awaiting-clarification` and stops.
+See `skills/_shared/pipeline.md` and `skills/_shared/review-protocol.md` for why
+gates, verdicts, write scopes and review scoping work this way.
 
 ## Stack
 
